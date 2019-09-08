@@ -554,7 +554,7 @@ void php_git2_diff_file_to_array(const git_diff_file *file, zval *out TSRMLS_DC)
 
 void php_git2_git_diff_delta_to_array(const git_diff_delta *delta, zval *out TSRMLS_DC)
 {
-	zval *old, *new;
+	zval old, new;
 
 	array_init(out);
 
@@ -563,11 +563,11 @@ void php_git2_git_diff_delta_to_array(const git_diff_delta *delta, zval *out TSR
 	add_assoc_long_ex(out, ZEND_STRL("similarity"), delta->similarity);
 	add_assoc_long_ex(out, ZEND_STRL("nfiles"), delta->nfiles);
 
-	php_git2_diff_file_to_array(&delta->old_file, old TSRMLS_CC);
-	php_git2_diff_file_to_array(&delta->new_file, new TSRMLS_CC);
+	php_git2_diff_file_to_array(&delta->old_file, &old TSRMLS_CC);
+	php_git2_diff_file_to_array(&delta->new_file, &new TSRMLS_CC);
 
-	add_assoc_zval_ex(out, ZEND_STRL("old_file"), old);
-	add_assoc_zval_ex(out, ZEND_STRL("new_file"), new);
+	add_assoc_zval_ex(out, ZEND_STRL("old_file"), &old);
+	add_assoc_zval_ex(out, ZEND_STRL("new_file"), &new);
 }
 
 void php_git2_array_to_git_diff_options(git_diff_options *options, zval *array TSRMLS_DC)
@@ -1356,25 +1356,25 @@ void php_git2_array_to_git_status_options(git_status_options *options, zval *arr
 
 void php_git2_git_status_entry_to_array(const git_status_entry *entry, zval *out TSRMLS_DC)
 {
-	zval *head_to_index, *index_to_workdir;
+	zval head_to_index, index_to_workdir;
 
 	array_init(out);
 
 	if (entry->head_to_index) {
-		php_git2_git_diff_delta_to_array(entry->head_to_index, head_to_index TSRMLS_CC);
+		php_git2_git_diff_delta_to_array(entry->head_to_index, &head_to_index TSRMLS_CC);
 	} else {
-		ZVAL_NULL(head_to_index);
+		ZVAL_NULL(&head_to_index);
 	}
 
 	if (entry->index_to_workdir) {
-		php_git2_git_diff_delta_to_array(entry->index_to_workdir, index_to_workdir TSRMLS_CC);
+		php_git2_git_diff_delta_to_array(entry->index_to_workdir, &index_to_workdir TSRMLS_CC);
 	} else {
-		ZVAL_NULL(index_to_workdir);
+		ZVAL_NULL(&index_to_workdir);
 	}
 
 	add_assoc_long_ex(out, ZEND_STRL("status"), entry->status);
-	add_assoc_zval_ex(out, ZEND_STRL("head_to_index"), head_to_index);
-	add_assoc_zval_ex(out, ZEND_STRL("index_to_workdir"), index_to_workdir);
+	add_assoc_zval_ex(out, ZEND_STRL("head_to_index"), &head_to_index);
+	add_assoc_zval_ex(out, ZEND_STRL("index_to_workdir"), &index_to_workdir);
 }
 
 int php_git2_git_status_cb(const char *path, unsigned int status_flags, void *payload)
